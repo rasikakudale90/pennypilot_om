@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Calendar } from 'lucide-react';
+import { X } from 'lucide-react';
 import { ExpenseCategory, ExpenseFilters as FilterType } from '../../types/expense';
 import { Button } from '../common/Button';
 

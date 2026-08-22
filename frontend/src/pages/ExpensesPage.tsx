@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, HelpCircle } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { expenseApi } from '../api/expenseApi';
-import { ExpenseFilters as FilterType, ExpenseCategory } from '../types/expense';
+import { ExpenseFilters as FilterType } from '../types/expense';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
@@ -45,8 +45,7 @@ export const ExpensesPage: React.FC = () => {
   });
 
   const { 
-    data: summary,
-    refetch: refetchSummary
+    data: summary
   } = useQuery({
     queryKey: ['expensesSummaryFiltered', filters],
     queryFn: () => expenseApi.getExpenseSummary(filters),
