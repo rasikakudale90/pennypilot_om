@@ -1,0 +1,28 @@
+# Environment variables file containing secrets
+.env
+
+# Maven build outputs
+**/target/
+**/.mvn/
+**/*.class
+
+# Node / JS dependencies and builds
+**/node_modules/
+**/dist/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS temp files
+.DS_Store
+Thumbs.db
+
+# Docker Compose local override
+docker-compose.override.yml
