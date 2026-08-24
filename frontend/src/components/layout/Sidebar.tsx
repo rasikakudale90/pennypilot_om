@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Wallet, PlusCircle, X } from 'lucide-react';
 import { Button } from '../common/Button';
+import { useApp } from '../../context/AppContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -9,63 +10,75 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const { theme } = useApp();
+
   const links = [
-    { name: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { name: 'Expenses', to: '/expenses', icon: <Wallet className="w-5 h-5" /> },
-    { name: 'Add Expense', to: '/expenses/add', icon: <PlusCircle className="w-5 h-5" /> },
+    { name: 'Dashboard', to: '/dashboard', icon: <LayoutDashboard className="w-4.5 h-4.5" /> },
+    { name: 'Expenses', to: '/expenses', icon: <Wallet className="w-4.5 h-4.5" /> },
+    { name: 'Add Expense', to: '/expenses/add', icon: <PlusCircle className="w-4.5 h-4.5" /> },
   ];
+
+  const isDark = theme === 'dark';
 
   return (
     <>
-      {/* Mobile Sidebar Overlay Backdrop */}
+      {/* Mobile backdrop */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm lg:hidden transition-opacity duration-300 animate-fade-in"
+        <div
+          className="fixed inset-0 z-50 lg:hidden transition-opacity duration-300 animate-fade-in"
+          style={{ background: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(15,17,23,0.3)' }}
           onClick={onClose}
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 glass-effect border-r border-slate-100 dark:border-slate-800/40 flex flex-col justify-between p-6 transition-transform duration-300 lg:translate-x-0 lg:static ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-50 w-60 flex flex-col justify-between p-5 transition-transform duration-300 lg:translate-x-0 lg:static ${isOpen ? 'translate-x-0' : '-translate-x-full'} ${
+          isDark
+            ? 'bg-[#13151f] border-r border-white/8 text-slate-100'
+            : 'bg-white border-r border-slate-200 text-slate-800'
         }`}
       >
-        <div className="space-y-8">
-          {/* Header & Close Button */}
+        <div className="space-y-7">
+          {/* Logo */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-brand-500 rounded-xl text-white shadow-lg shadow-brand-500/20">
-                <Wallet className="w-6 h-6" />
+              <div className={`p-2 rounded-xl ${isDark ? 'bg-violet-600/20' : 'bg-violet-50'}`}>
+                <Wallet className={`w-5 h-5 ${isDark ? 'text-violet-400' : 'text-violet-600'}`} />
               </div>
-              <h1 className="text-xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight bg-clip-text">
-                Penny<span className="text-brand-500">Pilot</span>
+              <h1 className="text-lg font-bold tracking-tight">
+                Penny<span className={isDark ? 'text-violet-400' : 'text-violet-600'}>Pilot</span>
               </h1>
             </div>
-            
-            {/* Mobile close button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="lg:hidden p-1 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-100"
+              className={`lg:hidden p-1.5 rounded-lg ${isDark ? 'hover:bg-white/8 text-slate-400' : 'hover:bg-slate-100 text-slate-500'}`}
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </Button>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="flex flex-col gap-2">
+          {/* Nav links */}
+          <nav className="flex flex-col gap-1">
+            <p className={`text-[10px] font-bold uppercase tracking-[0.12em] mb-2 ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+              Navigation
+            </p>
             {links.map((link) => (
               <NavLink
                 key={link.name}
                 to={link.to}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `flex items-center gap-3.5 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                     isActive
-                      ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/15 dark:shadow-brand-500/10'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-900 dark:hover:text-slate-200'
+                      ? isDark
+                        ? 'bg-violet-600/15 text-violet-300 border border-violet-500/20'
+                        : 'bg-violet-50 text-violet-700 border border-violet-100'
+                      : isDark
+                        ? 'text-slate-400 hover:bg-white/5 hover:text-slate-100 border border-transparent'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 border border-transparent'
                   }`
                 }
               >
@@ -76,10 +89,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* Footer info banner */}
-        <div className="p-4 bg-slate-100/50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/40 dark:border-slate-800/40 text-center">
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 block">System Version</span>
-          <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-1 block">V1 - Core Tracker</span>
+        {/* Footer */}
+        <div className={`text-center py-3 border-t ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+          <p className={`text-xs font-semibold ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+            Penny Pilot · v1.0
+          </p>
         </div>
       </aside>
     </>

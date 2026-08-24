@@ -1,9 +1,11 @@
 import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, PlusCircle } from 'lucide-react';
 import { expenseApi } from '../api/expenseApi';
 import { useApp } from '../context/AppContext';
 import { Card } from '../components/common/Card';
+import { Button } from '../components/common/Button';
 import { ExpenseForm } from '../components/expense/ExpenseForm';
 
 export const AddExpensePage: React.FC = () => {
@@ -15,7 +17,6 @@ export const AddExpensePage: React.FC = () => {
     mutationFn: (data: any) => expenseApi.createExpense(data),
     onSuccess: () => {
       showToast('Expense recorded successfully.', 'success');
-      // Invalidate queries to trigger refresh
       queryClient.invalidateQueries({ queryKey: ['expensesList'] });
       queryClient.invalidateQueries({ queryKey: ['expenseSummary'] });
       queryClient.invalidateQueries({ queryKey: ['recentExpenses'] });
@@ -28,12 +29,27 @@ export const AddExpensePage: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-black text-slate-900 dark:text-slate-50 tracking-tight">Record Expense</h1>
-        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Fill in the fields to log a new purchase or item.</p>
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-xl"
+        >
+          <ArrowLeft className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+        </Button>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <PlusCircle className="w-6 h-6 sm:w-7 sm:h-7 text-brand-600 dark:text-brand-400" />
+            Record Expense
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">Log a new purchase or outgoing payment.</p>
+        </div>
       </div>
 
-      <Card className="p-6 md:p-8 bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/80 shadow-md">
+      {/* Form Card */}
+      <Card glass="lg" className="p-5 sm:p-8">
         <ExpenseForm
           onSubmit={(data) => mutation.mutate(data)}
           onCancel={() => navigate('/expenses')}

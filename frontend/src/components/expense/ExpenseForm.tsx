@@ -5,15 +5,13 @@ import * as z from 'zod';
 import { ExpenseCategory } from '../../types/expense';
 import { Button } from '../common/Button';
 
-// Validation Schema
 const expenseSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title cannot exceed 255 characters'),
-  amount: z.coerce.number({ invalid_type_error: 'Amount must be a valid number' })
-    .positive('Amount must be greater than zero'),
+  title: z.string().min(1, 'Title is required').max(255),
+  amount: z.coerce.number({ invalid_type_error: 'Must be a valid number' }).positive('Must be greater than zero'),
   category: z.enum(['FOOD', 'TRANSPORT', 'SHOPPING', 'BILLS', 'HEALTH', 'ENTERTAINMENT', 'OTHER'], {
-    errorMap: () => ({ message: 'Please select a valid category' }),
+    errorMap: () => ({ message: 'Select a valid category' }),
   }),
-  expenseDate: z.string().min(1, 'Expense date is required'),
+  expenseDate: z.string().min(1, 'Date is required'),
   description: z.string().optional(),
 });
 
@@ -21,122 +19,101 @@ type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 interface ExpenseFormProps {
   initialValues?: {
-    title: string;
-    amount: number;
-    category: ExpenseCategory;
-    expenseDate: string;
-    description?: string;
+    title: string; amount: number; category: ExpenseCategory;
+    expenseDate: string; description?: string;
   };
   onSubmit: (data: ExpenseFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
+const Label: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+    {children}
+  </label>
+);
+
+const FieldError: React.FC<{ message?: string }> = ({ message }) =>
+  message ? <p className="text-xs text-red-500 mt-1">{message}</p> : null;
+
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({
-  initialValues,
-  onSubmit,
-  onCancel,
-  isLoading = false,
+  initialValues, onSubmit, onCancel, isLoading = false,
 }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ExpenseFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<ExpenseFormData>({
     resolver: zodResolver(expenseSchema),
     defaultValues: initialValues || {
-      title: '',
-      amount: undefined,
-      category: 'FOOD',
-      expenseDate: new Date().toISOString().split('T')[0], // Default today
-      description: '',
+      title: '', amount: undefined, category: 'FOOD',
+      expenseDate: new Date().toISOString().split('T')[0], description: '',
     },
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
       {/* Title */}
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">Title</label>
+      <div>
+        <Label>Title</Label>
         <input
           type="text"
-          placeholder="e.g. Grocery Shopping"
+          placeholder="e.g. Zomato Order, Petrol, Netflix..."
           {...register('title')}
-          className="w-full bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-0 focus-ring"
+          className="glass-input w-full"
         />
-        {errors.title && (
-          <p className="text-xs font-bold text-red-500">{errors.title.message}</p>
-        )}
+        <FieldError message={errors.title?.message} />
       </div>
 
-      {/* Grid of Amount, Category, Date */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Amount */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">Amount</label>
+      {/* Amount + Category + Date */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <Label>Amount (₹)</Label>
           <input
             type="number"
             step="0.01"
             placeholder="0.00"
             {...register('amount')}
-            className="w-full bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-0 focus-ring"
+            className="glass-input w-full"
           />
-          {errors.amount && (
-            <p className="text-xs font-bold text-red-500">{errors.amount.message}</p>
-          )}
+          <FieldError message={errors.amount?.message} />
         </div>
 
-        {/* Category */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">Category</label>
-          <select
-            {...register('category')}
-            className="w-full bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-0 focus-ring"
-          >
-            <option value="FOOD">FOOD</option>
-            <option value="TRANSPORT">TRANSPORT</option>
-            <option value="SHOPPING">SHOPPING</option>
-            <option value="BILLS">BILLS</option>
-            <option value="HEALTH">HEALTH</option>
-            <option value="ENTERTAINMENT">ENTERTAINMENT</option>
-            <option value="OTHER">OTHER</option>
+        <div>
+          <Label>Category</Label>
+          <select {...register('category')} className="glass-input w-full">
+            {['FOOD', 'TRANSPORT', 'SHOPPING', 'BILLS', 'HEALTH', 'ENTERTAINMENT', 'OTHER'].map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
-          {errors.category && (
-            <p className="text-xs font-bold text-red-500">{errors.category.message}</p>
-          )}
+          <FieldError message={errors.category?.message} />
         </div>
 
-        {/* Expense Date */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">Date</label>
+        <div>
+          <Label>Date</Label>
           <input
             type="date"
             {...register('expenseDate')}
-            className="w-full bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-0 focus-ring"
+            className="glass-input w-full"
           />
-          {errors.expenseDate && (
-            <p className="text-xs font-bold text-red-500">{errors.expenseDate.message}</p>
-          )}
+          <FieldError message={errors.expenseDate?.message} />
         </div>
       </div>
 
       {/* Description */}
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">Description</label>
+      <div>
+        <Label>Notes <span className="normal-case font-normal text-slate-400">(optional)</span></Label>
         <textarea
           rows={3}
-          placeholder="Optional notes or details..."
+          placeholder="Any extra details..."
           {...register('description')}
-          className="w-full bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 border-0 focus-ring"
+          className="glass-input w-full resize-none"
         />
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-4 border-t border-slate-100 dark:border-slate-800/60 pt-6">
-        <Button variant="ghost" type="button" onClick={onCancel} disabled={isLoading}>
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-white/5">
+        <Button variant="ghost" type="button" onClick={onCancel} disabled={isLoading} className="w-full sm:w-auto">
           Cancel
         </Button>
-        <Button variant="primary" type="submit" isLoading={isLoading}>
+        <Button variant="primary" type="submit" isLoading={isLoading} className="w-full sm:w-auto">
           {initialValues ? 'Save Changes' : 'Record Expense'}
         </Button>
       </div>

@@ -1,29 +1,32 @@
 import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  glass?: boolean;
+  glass?: 'sm' | 'md' | 'lg' | boolean;
   hoverable?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
   children,
-  glass = false,
+  glass = 'md',
   hoverable = false,
   className = '',
   ...props
 }) => {
-  const baseStyle = 'rounded-2xl transition-all duration-300 overflow-hidden';
-  const borderStyle = 'border border-slate-100 dark:border-slate-800/60';
-  const themeStyle = glass 
-    ? 'glass-effect' 
-    : 'bg-white dark:bg-slate-900 shadow-sm';
-  const hoverStyle = hoverable 
-    ? 'hover:scale-[1.015] hover:shadow-md hover:border-slate-200 dark:hover:border-slate-800' 
+  const baseStyle = 'rounded-2xl transition-all duration-200 overflow-hidden';
+
+  let glassStyle = '';
+  if (glass === 'sm') glassStyle = 'glass-sm';
+  else if (glass === 'lg') glassStyle = 'glass-lg';
+  else if (glass === 'md' || glass === true) glassStyle = 'glass-md';
+  else glassStyle = 'bg-white dark:bg-[#13151f] border border-slate-200 dark:border-white/8 shadow-sm';
+
+  const hoverStyle = hoverable
+    ? 'hover:shadow-md hover:-translate-y-0.5 cursor-pointer'
     : '';
 
   return (
     <div
-      className={`${baseStyle} ${borderStyle} ${themeStyle} ${hoverStyle} ${className}`}
+      className={`${baseStyle} ${glassStyle} ${hoverStyle} ${className}`}
       {...props}
     >
       {children}

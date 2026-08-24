@@ -1,62 +1,73 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Sun, Moon, Menu } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
 import { Button } from '../common/Button';
+import { useApp } from '../../context/AppContext';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
-  const { theme, toggleTheme } = useApp();
   const location = useLocation();
+  const { theme, toggleTheme } = useApp();
+  const isDark = theme === 'dark';
 
-  // Helper to translate route paths to readable titles
   const getPageTitle = () => {
     const path = location.pathname;
-    if (path === '/' || path === '/dashboard') return 'Financial Overview';
-    if (path === '/expenses') return 'Expense Ledger';
-    if (path === '/expenses/add') return 'New Expense';
-    if (path.startsWith('/expenses/edit')) return 'Modify Expense';
+    if (path === '/' || path === '/dashboard') return 'Dashboard';
+    if (path === '/expenses') return 'Expenses';
+    if (path === '/expenses/add') return 'Add Expense';
+    if (path.startsWith('/expenses/edit')) return 'Edit Expense';
     return 'Not Found';
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-effect border-b border-slate-100 dark:border-slate-800/40 px-6 py-4 flex items-center justify-between">
+    <header className={`sticky top-0 z-40 w-full px-6 py-4 flex items-center justify-between border-b transition-colors duration-300 ${
+      isDark
+        ? 'bg-[#13151f]/80 backdrop-blur-xl border-white/8 text-slate-100'
+        : 'bg-white/90 backdrop-blur-xl border-slate-200 text-slate-800'
+    }`}>
       <div className="flex items-center gap-3">
-        {/* Mobile Menu Toggle */}
         <Button
           variant="ghost"
           size="sm"
           onClick={onToggleSidebar}
-          className="lg:hidden p-1.5 rounded-xl border border-slate-200 dark:border-slate-800"
+          className={`lg:hidden p-2 rounded-lg ${isDark ? 'text-slate-400 hover:bg-white/8' : 'text-slate-500 hover:bg-slate-100'}`}
         >
-          <Menu className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <Menu className="w-5 h-5" />
         </Button>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">
+        <h2 className="text-base font-bold tracking-tight">
           {getPageTitle()}
         </h2>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* Theme Toggle Button */}
-        <Button
-          variant="ghost"
-          size="sm"
+      <div className="flex items-center gap-3">
+        {/* Clean Theme Toggle */}
+        <button
           onClick={toggleTheme}
-          className="p-2 rounded-full border border-slate-200/50 dark:border-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle theme"
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+            isDark
+              ? 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-slate-200'
+              : 'bg-slate-100 border-slate-200 text-slate-500 hover:bg-slate-200 hover:text-slate-700'
+          }`}
         >
-          {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-        </Button>
-        
-        {/* User Badge stub */}
-        <div className="hidden sm:flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-indigo-600 flex items-center justify-center font-bold text-white text-sm shadow-md">
+          {isDark ? (
+            <><Sun className="w-3.5 h-3.5" /> Light</>
+          ) : (
+            <><Moon className="w-3.5 h-3.5" /> Dark</>
+          )}
+        </button>
+
+        {/* User Badge */}
+        <div className={`flex items-center gap-2 pl-3 border-l ${isDark ? 'border-white/8' : 'border-slate-200'}`}>
+          <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center font-bold text-white text-sm">
             P
           </div>
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">V1 User</span>
+          <span className={`hidden sm:inline text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+            Penny Pilot
+          </span>
         </div>
       </div>
     </header>
