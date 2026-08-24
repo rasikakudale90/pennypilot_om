@@ -2,14 +2,13 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copy pom.xml (supports both root directory and backend directory build contexts)
+# Copy pom.xml and source code
 COPY pom.xml* backend/pom.xml* ./
-RUN mvn -B dependency:go-offline
-
-# Copy source code (supports both root directory and backend directory build contexts)
 COPY src* ./src
 COPY backend/src* ./src
-RUN mvn -B clean package -DskipTests
+
+# Build package with automatic retry handler to avoid Maven Central rate limits (429)
+RUN mvn -B clean package -DskipTests -Dmaven.wagon.http.retryHandler.count=5 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
 
 # ---------- Stage 2: Runtime ----------
 FROM eclipse-temurin:21-jre-alpine AS runtime
